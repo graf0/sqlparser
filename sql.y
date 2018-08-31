@@ -360,6 +360,10 @@ base_select:
   {
     $$ = &Select{Comments: Comments($2), Cache: $3, Distinct: $4, Hints: $5, SelectExprs: $6, From: $7, Where: NewWhere(WhereStr, $8), GroupBy: GroupBy($9), Having: NewWhere(HavingStr, $10)}
   }
+| SELECT comment_opt cache_opt distinct_opt straight_join_opt select_expression_list
+  {
+    $$ = &Select{Comments: Comments($2), Cache: $3, Distinct: $4, Hints: $5, SelectExprs: $6}
+  }
 
 union_lhs:
   select_statement
@@ -1668,10 +1672,7 @@ col_alias:
   }
 
 from_opt:
-  {
-    $$ = TableExprs{&AliasedTableExpr{Expr:TableName{Name: NewTableIdent("dual")}}}
-  }
-| FROM table_references
+  FROM table_references
   {
     $$ = $2
   }

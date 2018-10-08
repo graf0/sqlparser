@@ -24,7 +24,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/xwb1989/sqlparser/dependency/sqltypes"
+	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
 )
 
 func TestAppend(t *testing.T) {
@@ -107,27 +107,6 @@ func TestSelect(t *testing.T) {
 	want = " having (a = 1 or b = 1)"
 	if buf.String() != want {
 		t.Errorf("having: %q, want %s", buf.String(), want)
-	}
-}
-
-func TestRemoveHints(t *testing.T) {
-	for _, query := range []string{
-		"select * from t use index (i)",
-		"select * from t force index (i)",
-	} {
-		tree, err := Parse(query)
-		if err != nil {
-			t.Fatal(err)
-		}
-		sel := tree.(*Select)
-		sel.From = TableExprs{
-			sel.From[0].(*AliasedTableExpr).RemoveHints(),
-		}
-		buf := NewTrackedBuffer(nil)
-		sel.Format(buf)
-		if got, want := buf.String(), "select * from t"; got != want {
-			t.Errorf("stripped query: %s, want %s", got, want)
-		}
 	}
 }
 
@@ -291,9 +270,6 @@ func TestReplaceExpr(t *testing.T) {
 		in:  "select * from t where interval (select a from b) aa",
 		out: "interval :a aa",
 	}, {
-		in:  "select * from t where (select a from b) collate utf8",
-		out: ":a collate utf8",
-	}, {
 		in:  "select * from t where func((select a from b), 1)",
 		out: "func(:a, 1)",
 	}, {
@@ -314,21 +290,6 @@ func TestReplaceExpr(t *testing.T) {
 	}, {
 		in:  "select * from t where substr(a, b, (select a from b))",
 		out: "substr(a, b, :a)",
-	}, {
-		in:  "select * from t where convert((select a from b), json)",
-		out: "convert(:a, json)",
-	}, {
-		in:  "select * from t where convert((select a from b) using utf8)",
-		out: "convert(:a using utf8)",
-	}, {
-		in:  "select * from t where match((select a from b), 1) against (a)",
-		out: "match(:a, 1) against (a)",
-	}, {
-		in:  "select * from t where match(1, (select a from b), 1) against (a)",
-		out: "match(1, :a, 1) against (a)",
-	}, {
-		in:  "select * from t where match(1, a, 1) against ((select a from b))",
-		out: "match(1, a, 1) against (:a)",
 	}, {
 		in:  "select * from t where case (select a from b) when a then b when b then c else d end",
 		out: "case :a when a then b when b then c else d end",

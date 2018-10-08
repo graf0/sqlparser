@@ -25,8 +25,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/xwb1989/sqlparser/dependency/querypb"
-	"github.com/xwb1989/sqlparser/dependency/sqltypes"
+	"github.com/CovenantSQL/sqlparser/dependency/querypb"
+	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
 )
 
 // Instructions for creating new types: If a type
@@ -673,6 +673,7 @@ const (
 	DropStr          = "drop"
 	RenameStr        = "rename"
 	TruncateStr      = "truncate"
+	DropIndexStr     = "drop index"
 	CreateVindexStr  = "create vindex"
 	AddColVindexStr  = "add vindex"
 	DropColVindexStr = "drop vindex"
@@ -696,8 +697,14 @@ func (node *DDL) Format(buf *TrackedBuffer) {
 			exists = " if exists"
 		}
 		buf.Myprintf("%s table%s %v", node.Action, exists, node.Table)
+	case DropIndexStr:
+		exists := ""
+		if node.IfExists {
+			exists = " if exists"
+		}
+		buf.Myprintf("%s%s %v", node.Action, exists, node.Table)
 	case RenameStr:
-		buf.Myprintf("%s table %v to %v", node.Action, node.Table, node.NewName)
+		buf.Myprintf("alter table %v %s to %v", node.Table, node.Action, node.NewName)
 	case AlterStr:
 		if node.PartitionSpec != nil {
 			buf.Myprintf("%s table %v %v", node.Action, node.Table, node.PartitionSpec)
@@ -935,12 +942,6 @@ func (ct *ColumnType) Format(buf *TrackedBuffer) {
 	if ct.Zerofill {
 		opts = append(opts, keywordStrings[ZEROFILL])
 	}
-	if ct.Charset != "" {
-		opts = append(opts, keywordStrings[CHARACTER], keywordStrings[SET], ct.Charset)
-	}
-	if ct.Collate != "" {
-		opts = append(opts, keywordStrings[COLLATE], ct.Collate)
-	}
 	if ct.NotNull {
 		opts = append(opts, keywordStrings[NOT], keywordStrings[NULL])
 	}
@@ -953,9 +954,6 @@ func (ct *ColumnType) Format(buf *TrackedBuffer) {
 	if ct.Autoincrement {
 		opts = append(opts, keywordStrings[AUTO_INCREMENT])
 	}
-	if ct.Comment != nil {
-		opts = append(opts, keywordStrings[COMMENT_KEYWORD], String(ct.Comment))
-	}
 	if ct.KeyOpt == colKeyPrimary {
 		opts = append(opts, keywordStrings[PRIMARY], keywordStrings[KEY])
 	}
@@ -964,9 +962,6 @@ func (ct *ColumnType) Format(buf *TrackedBuffer) {
 	}
 	if ct.KeyOpt == colKeyUniqueKey {
 		opts = append(opts, keywordStrings[UNIQUE], keywordStrings[KEY])
-	}
-	if ct.KeyOpt == colKeySpatialKey {
-		opts = append(opts, keywordStrings[SPATIAL], keywordStrings[KEY])
 	}
 	if ct.KeyOpt == colKey {
 		opts = append(opts, keywordStrings[KEY])
@@ -1051,10 +1046,6 @@ func (ct *ColumnType) SQLType() querypb.Type {
 		return sqltypes.Char
 	case keywordStrings[VARCHAR]:
 		return sqltypes.VarChar
-	case keywordStrings[BINARY]:
-		return sqltypes.Binary
-	case keywordStrings[VARBINARY]:
-		return sqltypes.VarBinary
 	case keywordStrings[DATE]:
 		return sqltypes.Date
 	case keywordStrings[TIME]:
@@ -1071,30 +1062,8 @@ func (ct *ColumnType) SQLType() querypb.Type {
 		return sqltypes.Float64
 	case keywordStrings[DECIMAL]:
 		return sqltypes.Decimal
-	case keywordStrings[BIT]:
-		return sqltypes.Bit
-	case keywordStrings[ENUM]:
-		return sqltypes.Enum
 	case keywordStrings[SET]:
 		return sqltypes.Set
-	case keywordStrings[JSON]:
-		return sqltypes.TypeJSON
-	case keywordStrings[GEOMETRY]:
-		return sqltypes.Geometry
-	case keywordStrings[POINT]:
-		return sqltypes.Geometry
-	case keywordStrings[LINESTRING]:
-		return sqltypes.Geometry
-	case keywordStrings[POLYGON]:
-		return sqltypes.Geometry
-	case keywordStrings[GEOMETRYCOLLECTION]:
-		return sqltypes.Geometry
-	case keywordStrings[MULTIPOINT]:
-		return sqltypes.Geometry
-	case keywordStrings[MULTILINESTRING]:
-		return sqltypes.Geometry
-	case keywordStrings[MULTIPOLYGON]:
-		return sqltypes.Geometry
 	}
 	panic("unimplemented type " + ct.Type)
 }
@@ -1805,15 +1774,13 @@ type JoinTableExpr struct {
 
 // JoinTableExpr.Join
 const (
-	JoinStr             = "join"
-	InnerJoinStr        = "inner join"
-	CrossJoinStr        = "cross join"
-	StraightJoinStr     = "straight_join"
-	LeftJoinStr         = "left join"
-	RightJoinStr        = "right join"
-	NaturalJoinStr      = "natural join"
-	NaturalLeftJoinStr  = "natural left join"
-	NaturalRightJoinStr = "natural right join"
+	JoinStr            = "join"
+	InnerJoinStr       = "inner join"
+	CrossJoinStr       = "cross join"
+	StraightJoinStr    = "straight_join"
+	LeftJoinStr        = "left join"
+	NaturalJoinStr     = "natural join"
+	NaturalLeftJoinStr = "natural left join"
 )
 
 // Format formats the node.
@@ -1946,6 +1913,7 @@ func (*ConvertUsingExpr) iExpr() {}
 func (*MatchExpr) iExpr()        {}
 func (*GroupConcatExpr) iExpr()  {}
 func (*Default) iExpr()          {}
+func (*TimeExpr) iExpr()         {}
 
 // ReplaceExpr finds the from expression from root
 // and replaces it with to. If from matches root,
@@ -2105,22 +2073,20 @@ type ComparisonExpr struct {
 
 // ComparisonExpr.Operator
 const (
-	EqualStr             = "="
-	LessThanStr          = "<"
-	GreaterThanStr       = ">"
-	LessEqualStr         = "<="
-	GreaterEqualStr      = ">="
-	NotEqualStr          = "!="
-	NullSafeEqualStr     = "<=>"
-	NullSafeNotEqualStr  = "<>"
-	InStr                = "in"
-	NotInStr             = "not in"
-	LikeStr              = "like"
-	NotLikeStr           = "not like"
-	RegexpStr            = "regexp"
-	NotRegexpStr         = "not regexp"
-	JSONExtractOp        = "->"
-	JSONUnquoteExtractOp = "->>"
+	EqualStr            = "="
+	LessThanStr         = "<"
+	GreaterThanStr      = ">"
+	LessEqualStr        = "<="
+	GreaterEqualStr     = ">="
+	NotEqualStr         = "!="
+	NullSafeEqualStr    = "<=>"
+	NullSafeNotEqualStr = "<>"
+	InStr               = "in"
+	NotInStr            = "not in"
+	LikeStr             = "like"
+	NotLikeStr          = "not like"
+	RegexpStr           = "regexp"
+	NotRegexpStr        = "not regexp"
 )
 
 // Format formats the node.
@@ -2634,6 +2600,24 @@ func (node *CollateExpr) replace(from, to Expr) bool {
 	return replaceExprs(from, to, &node.Expr)
 }
 
+// TimeExpr represents a time expression.
+type TimeExpr struct {
+	Expr ColIdent
+}
+
+// Format formats the node.
+func (node *TimeExpr) Format(buf *TrackedBuffer) {
+	buf.Myprintf(node.Expr.Lowered())
+}
+
+func (node *TimeExpr) walkSubtree(visit Visit) error {
+	return nil
+}
+
+func (node *TimeExpr) replace(from, to Expr) bool {
+	return false
+}
+
 // FuncExpr represents a function call.
 type FuncExpr struct {
 	Qualifier TableIdent
@@ -2816,7 +2800,7 @@ type ConvertExpr struct {
 
 // Format formats the node.
 func (node *ConvertExpr) Format(buf *TrackedBuffer) {
-	buf.Myprintf("convert(%v, %v)", node.Expr, node.Type)
+	buf.Myprintf("cast(%v as %v)", node.Expr, node.Type)
 }
 
 func (node *ConvertExpr) walkSubtree(visit Visit) error {

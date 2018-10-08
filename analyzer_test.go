@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/xwb1989/sqlparser/dependency/sqltypes"
+	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
 )
 
 func TestPreview(t *testing.T) {
@@ -356,140 +356,6 @@ func TestStringIn(t *testing.T) {
 		out := StringIn(tc.in1, tc.in2...)
 		if out != tc.out {
 			t.Errorf("StringIn(%v,%v): %#v, want %#v", tc.in1, tc.in2, out, tc.out)
-		}
-	}
-}
-
-func TestExtractSetValues(t *testing.T) {
-	testcases := []struct {
-		sql   string
-		out   map[SetKey]interface{}
-		scope string
-		err   string
-	}{{
-		sql: "invalid",
-		err: "syntax error at position 8 near 'invalid'",
-	}, {
-		sql: "select * from t",
-		err: "ast did not yield *sqlparser.Set: *sqlparser.Select",
-	}, {
-		sql: "set autocommit=1+1",
-		err: "invalid syntax: 1 + 1",
-	}, {
-		sql: "set transaction_mode='single'",
-		out: map[SetKey]interface{}{{Key: "transaction_mode", Scope: "session"}: "single"},
-	}, {
-		sql: "set autocommit=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set autocommit=true",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set autocommit=false",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(0)},
-	}, {
-		sql: "set autocommit=on",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: "on"},
-	}, {
-		sql: "set autocommit=off",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: "off"},
-	}, {
-		sql: "set @@global.autocommit=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "global"}: int64(1)},
-	}, {
-		sql: "set @@global.autocommit=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "global"}: int64(1)},
-	}, {
-		sql: "set @@session.autocommit=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set @@session.`autocommit`=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set @@session.'autocommit'=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set @@session.\"autocommit\"=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set @@session.'\"autocommit'=1",
-		out: map[SetKey]interface{}{{Key: "\"autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set @@session.`autocommit'`=1",
-		out: map[SetKey]interface{}{{Key: "autocommit'", Scope: "session"}: int64(1)},
-	}, {
-		sql: "set AUTOCOMMIT=1",
-		out: map[SetKey]interface{}{{Key: "autocommit", Scope: "session"}: int64(1)},
-	}, {
-		sql: "SET character_set_results = NULL",
-		out: map[SetKey]interface{}{{Key: "character_set_results", Scope: "session"}: nil},
-	}, {
-		sql: "SET foo = 0x1234",
-		err: "invalid value type: 0x1234",
-	}, {
-		sql: "SET names utf8",
-		out: map[SetKey]interface{}{{Key: "names", Scope: "session"}: "utf8"},
-	}, {
-		sql: "SET names ascii collate ascii_bin",
-		out: map[SetKey]interface{}{{Key: "names", Scope: "session"}: "ascii"},
-	}, {
-		sql: "SET charset default",
-		out: map[SetKey]interface{}{{Key: "charset", Scope: "session"}: "default"},
-	}, {
-		sql: "SET character set ascii",
-		out: map[SetKey]interface{}{{Key: "charset", Scope: "session"}: "ascii"},
-	}, {
-		sql:   "SET SESSION wait_timeout = 3600",
-		out:   map[SetKey]interface{}{{Key: "wait_timeout", Scope: "session"}: int64(3600)},
-		scope: "session",
-	}, {
-		sql:   "SET GLOBAL wait_timeout = 3600",
-		out:   map[SetKey]interface{}{{Key: "wait_timeout", Scope: "session"}: int64(3600)},
-		scope: "global",
-	}, {
-		sql:   "set session transaction isolation level repeatable read",
-		out:   map[SetKey]interface{}{{Key: "tx_isolation", Scope: "session"}: "repeatable read"},
-		scope: "session",
-	}, {
-		sql:   "set session transaction isolation level read committed",
-		out:   map[SetKey]interface{}{{Key: "tx_isolation", Scope: "session"}: "read committed"},
-		scope: "session",
-	}, {
-		sql:   "set session transaction isolation level read uncommitted",
-		out:   map[SetKey]interface{}{{Key: "tx_isolation", Scope: "session"}: "read uncommitted"},
-		scope: "session",
-	}, {
-		sql:   "set session transaction isolation level serializable",
-		out:   map[SetKey]interface{}{{Key: "tx_isolation", Scope: "session"}: "serializable"},
-		scope: "session",
-	}, {
-		sql:   "set session tx_read_only = 0",
-		out:   map[SetKey]interface{}{{Key: "tx_read_only", Scope: "session"}: int64(0)},
-		scope: "session",
-	}, {
-		sql:   "set session tx_read_only = 1",
-		out:   map[SetKey]interface{}{{Key: "tx_read_only", Scope: "session"}: int64(1)},
-		scope: "session",
-	}, {
-		sql:   "set session sql_safe_updates = 0",
-		out:   map[SetKey]interface{}{{Key: "sql_safe_updates", Scope: "session"}: int64(0)},
-		scope: "session",
-	}, {
-		sql:   "set session sql_safe_updates = 1",
-		out:   map[SetKey]interface{}{{Key: "sql_safe_updates", Scope: "session"}: int64(1)},
-		scope: "session",
-	}}
-	for _, tcase := range testcases {
-		out, _, err := ExtractSetValues(tcase.sql)
-		if tcase.err != "" {
-			if err == nil || err.Error() != tcase.err {
-				t.Errorf("ExtractSetValues(%s): %v, want '%s'", tcase.sql, err, tcase.err)
-			}
-		} else if err != nil {
-			t.Errorf("ExtractSetValues(%s): %v, want no error", tcase.sql, err)
-		}
-		if !reflect.DeepEqual(out, tcase.out) {
-			t.Errorf("ExtractSetValues(%s): %v, want '%v'", tcase.sql, out, tcase.out)
 		}
 	}
 }

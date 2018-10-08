@@ -119,12 +119,12 @@ func TestParseNextEdgeCases(t *testing.T) {
 		want:  []string{"select 1 from a", "update a set b = 2"},
 	}, {
 		name:  "Handle ForceEOF statements",
-		input: "set character set utf8; select 1 from a",
-		want:  []string{"set charset 'utf8'", "select 1 from a"},
+		input: "show create table a; select 1 from a",
+		want:  []string{"show create table", "select 1 from a"},
 	}, {
 		name:  "Semicolin inside a string",
-		input: "set character set ';'; select 1 from a",
-		want:  []string{"set charset ';'", "select 1 from a"},
+		input: "select ';'; select 1 from a",
+		want:  []string{"select ';'", "select 1 from a"},
 	}, {
 		name:  "Partial DDL",
 		input: "create table a; select 1 from a",

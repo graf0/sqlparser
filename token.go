@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/xwb1989/sqlparser/dependency/bytes2"
-	"github.com/xwb1989/sqlparser/dependency/sqltypes"
+	"github.com/CovenantSQL/sqlparser/dependency/bytes2"
+	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
 )
 
 const (
@@ -85,25 +85,18 @@ func NewTokenizer(r io.Reader) *Tokenizer {
 var keywords = map[string]int{
 	"accessible":          UNUSED,
 	"add":                 ADD,
-	"against":             AGAINST,
 	"all":                 ALL,
 	"alter":               ALTER,
-	"analyze":             ANALYZE,
 	"and":                 AND,
 	"as":                  AS,
 	"asc":                 ASC,
 	"asensitive":          UNUSED,
 	"auto_increment":      AUTO_INCREMENT,
 	"before":              UNUSED,
-	"begin":               BEGIN,
 	"between":             BETWEEN,
 	"bigint":              BIGINT,
-	"binary":              BINARY,
-	"_binary":             UNDERSCORE_BINARY,
-	"bit":                 BIT,
 	"blob":                BLOB,
 	"bool":                BOOL,
-	"boolean":             BOOLEAN,
 	"both":                UNUSED,
 	"by":                  BY,
 	"call":                UNUSED,
@@ -112,20 +105,12 @@ var keywords = map[string]int{
 	"cast":                CAST,
 	"change":              UNUSED,
 	"char":                CHAR,
-	"character":           CHARACTER,
-	"charset":             CHARSET,
 	"check":               UNUSED,
-	"collate":             COLLATE,
 	"column":              COLUMN,
-	"comment":             COMMENT_KEYWORD,
-	"committed":           COMMITTED,
-	"commit":              COMMIT,
 	"condition":           UNUSED,
 	"constraint":          CONSTRAINT,
 	"continue":            UNUSED,
-	"convert":             CONVERT,
 	"substr":              SUBSTR,
-	"substring":           SUBSTRING,
 	"create":              CREATE,
 	"cross":               CROSS,
 	"current_date":        CURRENT_DATE,
@@ -133,8 +118,6 @@ var keywords = map[string]int{
 	"current_timestamp":   CURRENT_TIMESTAMP,
 	"current_user":        UNUSED,
 	"cursor":              UNUSED,
-	"database":            DATABASE,
-	"databases":           DATABASES,
 	"day_hour":            UNUSED,
 	"day_microsecond":     UNUSED,
 	"day_minute":          UNUSED,
@@ -155,36 +138,24 @@ var keywords = map[string]int{
 	"div":                 DIV,
 	"double":              DOUBLE,
 	"drop":                DROP,
-	"duplicate":           DUPLICATE,
 	"each":                UNUSED,
 	"else":                ELSE,
 	"elseif":              UNUSED,
 	"enclosed":            UNUSED,
 	"end":                 END,
-	"enum":                ENUM,
 	"escape":              ESCAPE,
 	"escaped":             UNUSED,
 	"exists":              EXISTS,
 	"exit":                UNUSED,
-	"explain":             EXPLAIN,
-	"expansion":           EXPANSION,
-	"extended":            EXTENDED,
 	"false":               FALSE,
 	"fetch":               UNUSED,
 	"float":               FLOAT_TYPE,
 	"float4":              UNUSED,
 	"float8":              UNUSED,
-	"for":                 FOR,
-	"force":               FORCE,
 	"foreign":             FOREIGN,
 	"from":                FROM,
-	"full":                FULL,
-	"fulltext":            FULLTEXT,
 	"generated":           UNUSED,
-	"geometry":            GEOMETRY,
-	"geometrycollection":  GEOMETRYCOLLECTION,
 	"get":                 UNUSED,
-	"global":              GLOBAL,
 	"grant":               UNUSED,
 	"group":               GROUP,
 	"group_concat":        GROUP_CONCAT,
@@ -213,38 +184,25 @@ var keywords = map[string]int{
 	"into":                INTO,
 	"io_after_gtids":      UNUSED,
 	"is":                  IS,
-	"isolation":           ISOLATION,
 	"iterate":             UNUSED,
 	"join":                JOIN,
-	"json":                JSON,
 	"key":                 KEY,
-	"keys":                KEYS,
-	"key_block_size":      KEY_BLOCK_SIZE,
 	"kill":                UNUSED,
-	"language":            LANGUAGE,
 	"last_insert_id":      LAST_INSERT_ID,
 	"leading":             UNUSED,
 	"leave":               UNUSED,
 	"left":                LEFT,
-	"less":                LESS,
-	"level":               LEVEL,
 	"like":                LIKE,
 	"limit":               LIMIT,
 	"linear":              UNUSED,
 	"lines":               UNUSED,
-	"linestring":          LINESTRING,
 	"load":                UNUSED,
-	"localtime":           LOCALTIME,
-	"localtimestamp":      LOCALTIMESTAMP,
-	"lock":                LOCK,
 	"long":                UNUSED,
 	"longblob":            LONGBLOB,
 	"longtext":            LONGTEXT,
 	"loop":                UNUSED,
 	"low_priority":        UNUSED,
 	"master_bind":         UNUSED,
-	"match":               MATCH,
-	"maxvalue":            MAXVALUE,
 	"mediumblob":          MEDIUMBLOB,
 	"mediumint":           MEDIUMINT,
 	"mediumtext":          MEDIUMTEXT,
@@ -252,23 +210,15 @@ var keywords = map[string]int{
 	"minute_microsecond":  UNUSED,
 	"minute_second":       UNUSED,
 	"mod":                 MOD,
-	"mode":                MODE,
 	"modifies":            UNUSED,
-	"multilinestring":     MULTILINESTRING,
-	"multipoint":          MULTIPOINT,
-	"multipolygon":        MULTIPOLYGON,
-	"names":               NAMES,
 	"natural":             NATURAL,
 	"nchar":               NCHAR,
-	"next":                NEXT,
 	"not":                 NOT,
 	"no_write_to_binlog":  UNUSED,
 	"null":                NULL,
 	"numeric":             NUMERIC,
 	"offset":              OFFSET,
 	"on":                  ON,
-	"only":                ONLY,
-	"optimize":            OPTIMIZE,
 	"optimizer_costs":     UNUSED,
 	"option":              UNUSED,
 	"optionally":          UNUSED,
@@ -277,16 +227,9 @@ var keywords = map[string]int{
 	"out":                 UNUSED,
 	"outer":               OUTER,
 	"outfile":             UNUSED,
-	"partition":           PARTITION,
-	"point":               POINT,
-	"polygon":             POLYGON,
 	"precision":           UNUSED,
 	"primary":             PRIMARY,
-	"processlist":         PROCESSLIST,
-	"procedure":           PROCEDURE,
-	"query":               QUERY,
 	"range":               UNUSED,
-	"read":                READ,
 	"reads":               UNUSED,
 	"read_write":          UNUSED,
 	"real":                REAL,
@@ -294,10 +237,7 @@ var keywords = map[string]int{
 	"regexp":              REGEXP,
 	"release":             UNUSED,
 	"rename":              RENAME,
-	"reorganize":          REORGANIZE,
-	"repair":              REPAIR,
 	"repeat":              UNUSED,
-	"repeatable":          REPEATABLE,
 	"replace":             REPLACE,
 	"require":             UNUSED,
 	"resignal":            UNUSED,
@@ -306,45 +246,32 @@ var keywords = map[string]int{
 	"revoke":              UNUSED,
 	"right":               RIGHT,
 	"rlike":               REGEXP,
-	"rollback":            ROLLBACK,
-	"schema":              SCHEMA,
 	"schemas":             UNUSED,
 	"second_microsecond":  UNUSED,
 	"select":              SELECT,
 	"sensitive":           UNUSED,
 	"separator":           SEPARATOR,
-	"serializable":        SERIALIZABLE,
-	"session":             SESSION,
 	"set":                 SET,
-	"share":               SHARE,
 	"show":                SHOW,
 	"signal":              UNUSED,
 	"signed":              SIGNED,
 	"smallint":            SMALLINT,
-	"spatial":             SPATIAL,
 	"specific":            UNUSED,
 	"sql":                 UNUSED,
 	"sqlexception":        UNUSED,
 	"sqlstate":            UNUSED,
 	"sqlwarning":          UNUSED,
 	"sql_big_result":      UNUSED,
-	"sql_cache":           SQL_CACHE,
 	"sql_calc_found_rows": UNUSED,
-	"sql_no_cache":        SQL_NO_CACHE,
 	"sql_small_result":    UNUSED,
 	"ssl":                 UNUSED,
-	"start":               START,
 	"starting":            UNUSED,
-	"status":              STATUS,
 	"stored":              UNUSED,
-	"straight_join":       STRAIGHT_JOIN,
-	"stream":              STREAM,
 	"string":              STRING,
 	"table":               TABLE,
 	"tables":              TABLES,
 	"terminated":          UNUSED,
 	"text":                TEXT,
-	"than":                THAN,
 	"then":                THEN,
 	"time":                TIME,
 	"timestamp":           TIMESTAMP,
@@ -353,11 +280,7 @@ var keywords = map[string]int{
 	"tinytext":            TINYTEXT,
 	"to":                  TO,
 	"trailing":            UNUSED,
-	"transaction":         TRANSACTION,
-	"trigger":             TRIGGER,
 	"true":                TRUE,
-	"truncate":            TRUNCATE,
-	"uncommitted":         UNCOMMITTED,
 	"undo":                UNUSED,
 	"union":               UNION,
 	"unique":              UNIQUE,
@@ -365,30 +288,15 @@ var keywords = map[string]int{
 	"unsigned":            UNSIGNED,
 	"update":              UPDATE,
 	"usage":               UNUSED,
-	"use":                 USE,
 	"using":               USING,
-	"utc_date":            UTC_DATE,
-	"utc_time":            UTC_TIME,
-	"utc_timestamp":       UTC_TIMESTAMP,
 	"values":              VALUES,
-	"variables":           VARIABLES,
-	"varbinary":           VARBINARY,
 	"varchar":             VARCHAR,
 	"varcharacter":        UNUSED,
 	"varying":             UNUSED,
 	"virtual":             UNUSED,
-	"vindex":              VINDEX,
-	"vindexes":            VINDEXES,
-	"view":                VIEW,
-	"vitess_keyspaces":    VITESS_KEYSPACES,
-	"vitess_shards":       VITESS_SHARDS,
-	"vitess_tablets":      VITESS_TABLETS,
-	"vschema_tables":      VSCHEMA_TABLES,
 	"when":                WHEN,
 	"where":               WHERE,
 	"while":               UNUSED,
-	"with":                WITH,
-	"write":               WRITE,
 	"xor":                 UNUSED,
 	"year":                YEAR,
 	"year_month":          UNUSED,
@@ -481,12 +389,6 @@ func (tkn *Tokenizer) Scan() (int, []byte) {
 				return tkn.scanHex()
 			}
 		}
-		if ch == 'B' || ch == 'b' {
-			if tkn.lastChar == '\'' {
-				tkn.next()
-				return tkn.scanBitLiteral()
-			}
-		}
 		isDbSystemVariable := false
 		if ch == '@' && tkn.lastChar == '@' {
 			isDbSystemVariable = true
@@ -550,13 +452,6 @@ func (tkn *Tokenizer) Scan() (int, []byte) {
 			case '-':
 				tkn.next()
 				return tkn.scanCommentType1("--")
-			case '>':
-				tkn.next()
-				if tkn.lastChar == '>' {
-					tkn.next()
-					return JSON_UNQUOTE_EXTRACT_OP, nil
-				}
-				return JSON_EXTRACT_OP, nil
 			}
 			return int(ch), nil
 		case '<':
@@ -569,13 +464,7 @@ func (tkn *Tokenizer) Scan() (int, []byte) {
 				return SHIFT_LEFT, nil
 			case '=':
 				tkn.next()
-				switch tkn.lastChar {
-				case '>':
-					tkn.next()
-					return NULL_SAFE_EQUAL, nil
-				default:
-					return LE, nil
-				}
+				return LE, nil
 			default:
 				return int(ch), nil
 			}
@@ -653,16 +542,6 @@ func (tkn *Tokenizer) scanHex() (int, []byte) {
 		return LEX_ERROR, buffer.Bytes()
 	}
 	return HEX, buffer.Bytes()
-}
-
-func (tkn *Tokenizer) scanBitLiteral() (int, []byte) {
-	buffer := &bytes2.Buffer{}
-	tkn.scanMantissa(2, buffer)
-	if tkn.lastChar != '\'' {
-		return LEX_ERROR, buffer.Bytes()
-	}
-	tkn.next()
-	return BIT_LITERAL, buffer.Bytes()
 }
 
 func (tkn *Tokenizer) scanLiteralIdentifier() (int, []byte) {

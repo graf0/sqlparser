@@ -337,6 +337,10 @@ insert_or_replace:
   {
     $$ = ReplaceStr
   }
+| INSERT OR REPLACE
+  {
+    $$ = ReplaceStr
+  }
 
 update_statement:
   UPDATE comment_opt table_references SET update_list where_expression_opt order_by_opt limit_opt

@@ -207,22 +207,16 @@ type Statement interface {
 	SQLNode
 }
 
-func (*Union) iStatement()      {}
-func (*Select) iStatement()     {}
-func (*Stream) iStatement()     {}
-func (*Insert) iStatement()     {}
-func (*Update) iStatement()     {}
-func (*Delete) iStatement()     {}
-func (*Set) iStatement()        {}
-func (*DBDDL) iStatement()      {}
-func (*DDL) iStatement()        {}
-func (*Show) iStatement()       {}
-func (*Use) iStatement()        {}
-func (*Begin) iStatement()      {}
-func (*Commit) iStatement()     {}
-func (*Rollback) iStatement()   {}
-func (*OtherRead) iStatement()  {}
-func (*OtherAdmin) iStatement() {}
+func (*Union) iStatement()  {}
+func (*Select) iStatement() {}
+func (*Stream) iStatement() {}
+func (*Insert) iStatement() {}
+func (*Update) iStatement() {}
+func (*Delete) iStatement() {}
+func (*Set) iStatement()    {}
+func (*DBDDL) iStatement()  {}
+func (*DDL) iStatement()    {}
+func (*Show) iStatement()   {}
 
 // ParenSelect can actually not be a top level statement,
 // but we have to allow it because it's a requirement
@@ -672,8 +666,8 @@ const (
 	AlterStr         = "alter"
 	DropStr          = "drop"
 	RenameStr        = "rename"
-	TruncateStr      = "truncate"
 	DropIndexStr     = "drop index"
+	CreateIndexStr   = "create index"
 	CreateVindexStr  = "create vindex"
 	AddColVindexStr  = "add vindex"
 	DropColVindexStr = "drop vindex"
@@ -697,6 +691,8 @@ func (node *DDL) Format(buf *TrackedBuffer) {
 			exists = " if exists"
 		}
 		buf.Myprintf("%s table%s %v", node.Action, exists, node.Table)
+	case CreateIndexStr:
+		buf.Myprintf("%s on %v", node.Action, node.Table)
 	case DropIndexStr:
 		exists := ""
 		if node.IfExists {
@@ -1251,38 +1247,20 @@ func (node VindexParam) walkSubtree(visit Visit) error {
 
 // Show represents a show statement.
 type Show struct {
-	Type          string
-	OnTable       TableName
-	ShowTablesOpt *ShowTablesOpt
-	Scope         string
+	Type       string
+	OnTable    TableName
+	ShowCreate bool
 }
 
 // Format formats the node.
 func (node *Show) Format(buf *TrackedBuffer) {
-	if node.Type == "tables" && node.ShowTablesOpt != nil {
-		opt := node.ShowTablesOpt
-		if opt.DbName != "" {
-			if opt.Filter != nil {
-				buf.Myprintf("show %s%stables from %s %v", opt.Extended, opt.Full, opt.DbName, opt.Filter)
-			} else {
-				buf.Myprintf("show %s%stables from %s", opt.Extended, opt.Full, opt.DbName)
-			}
-		} else {
-			if opt.Filter != nil {
-				buf.Myprintf("show %s%stables %v", opt.Extended, opt.Full, opt.Filter)
-			} else {
-				buf.Myprintf("show %s%stables", opt.Extended, opt.Full)
-			}
-		}
-		return
+	buf.Myprintf("show ")
+	if node.ShowCreate {
+		buf.Myprintf("create ")
 	}
-	if node.Scope == "" {
-		buf.Myprintf("show %s", node.Type)
-	} else {
-		buf.Myprintf("show %s %s", node.Scope, node.Type)
-	}
+	buf.Myprintf("%s", node.Type)
 	if node.HasOnTable() {
-		buf.Myprintf(" on %v", node.OnTable)
+		buf.Myprintf(" %v", node.OnTable)
 	}
 }
 
@@ -1292,116 +1270,6 @@ func (node *Show) HasOnTable() bool {
 }
 
 func (node *Show) walkSubtree(visit Visit) error {
-	return nil
-}
-
-// ShowTablesOpt is show tables option
-type ShowTablesOpt struct {
-	Extended string
-	Full     string
-	DbName   string
-	Filter   *ShowFilter
-}
-
-// ShowFilter is show tables filter
-type ShowFilter struct {
-	Like   string
-	Filter Expr
-}
-
-// Format formats the node.
-func (node *ShowFilter) Format(buf *TrackedBuffer) {
-	if node.Like != "" {
-		buf.Myprintf("like '%s'", node.Like)
-	} else {
-		buf.Myprintf("where %v", node.Filter)
-	}
-}
-
-func (node *ShowFilter) walkSubtree(visit Visit) error {
-	return nil
-}
-
-// Use represents a use statement.
-type Use struct {
-	DBName TableIdent
-}
-
-// Format formats the node.
-func (node *Use) Format(buf *TrackedBuffer) {
-	if node.DBName.v != "" {
-		buf.Myprintf("use %v", node.DBName)
-	} else {
-		buf.Myprintf("use")
-	}
-}
-
-func (node *Use) walkSubtree(visit Visit) error {
-	return Walk(visit, node.DBName)
-}
-
-// Begin represents a Begin statement.
-type Begin struct{}
-
-// Format formats the node.
-func (node *Begin) Format(buf *TrackedBuffer) {
-	buf.WriteString("begin")
-}
-
-func (node *Begin) walkSubtree(visit Visit) error {
-	return nil
-}
-
-// Commit represents a Commit statement.
-type Commit struct{}
-
-// Format formats the node.
-func (node *Commit) Format(buf *TrackedBuffer) {
-	buf.WriteString("commit")
-}
-
-func (node *Commit) walkSubtree(visit Visit) error {
-	return nil
-}
-
-// Rollback represents a Rollback statement.
-type Rollback struct{}
-
-// Format formats the node.
-func (node *Rollback) Format(buf *TrackedBuffer) {
-	buf.WriteString("rollback")
-}
-
-func (node *Rollback) walkSubtree(visit Visit) error {
-	return nil
-}
-
-// OtherRead represents a DESCRIBE, or EXPLAIN statement.
-// It should be used only as an indicator. It does not contain
-// the full AST for the statement.
-type OtherRead struct{}
-
-// Format formats the node.
-func (node *OtherRead) Format(buf *TrackedBuffer) {
-	buf.WriteString("otherread")
-}
-
-func (node *OtherRead) walkSubtree(visit Visit) error {
-	return nil
-}
-
-// OtherAdmin represents a misc statement that relies on ADMIN privileges,
-// such as REPAIR, OPTIMIZE, or TRUNCATE statement.
-// It should be used only as an indicator. It does not contain
-// the full AST for the statement.
-type OtherAdmin struct{}
-
-// Format formats the node.
-func (node *OtherAdmin) Format(buf *TrackedBuffer) {
-	buf.WriteString("otheradmin")
-}
-
-func (node *OtherAdmin) walkSubtree(visit Visit) error {
 	return nil
 }
 

@@ -119,8 +119,8 @@ func TestParseNextEdgeCases(t *testing.T) {
 		want:  []string{"select 1 from a", "update a set b = 2"},
 	}, {
 		name:  "Handle ForceEOF statements",
-		input: "show create table a; select 1 from a",
-		want:  []string{"show create table", "select 1 from a"},
+		input: "create index b on a; select 1 from a",
+		want:  []string{"create index on a", "select 1 from a"},
 	}, {
 		name:  "Semicolin inside a string",
 		input: "select ';'; select 1 from a",

@@ -214,7 +214,7 @@ func forceEOF(yylex interface{}) {
 %type <colIdent> sql_id reserved_sql_id col_alias as_ci_opt
 %type <tableIdent> table_id reserved_table_id table_alias as_opt_id
 %type <empty> as_opt
-%type <empty> force_eof ddl_force_eof
+%type <empty> ddl_force_eof
 %type <convertType> convert_type
 %type <columnType> column_type
 %type <columnType> int_type decimal_type numeric_type time_type char_type
@@ -359,7 +359,7 @@ create_statement:
 | CREATE constraint_opt INDEX ID ON table_name ddl_force_eof
   {
     // Change this to an alter statement
-    $$ = &DDL{Action: AlterStr, Table: $6, NewName:$6}
+    $$ = &DDL{Action: CreateIndexStr, Table: $6, NewName:$6}
   }
 
 create_table_prefix:
@@ -800,31 +800,31 @@ drop_statement:
   }
 
 show_statement:
-SHOW CREATE TABLE ddl_force_eof
+SHOW CREATE TABLE table_name
   {
-    $$ = &Show{Type: string($2) + " " + string($3)}
+    $$ = &Show{Type: string($3), ShowCreate: true, OnTable: $4}
   }
-| SHOW INDEX ddl_force_eof
+| SHOW INDEX FROM TABLE table_name
   {
-    $$ = &Show{Type: string($2)}
+    $$ = &Show{Type: string($2), OnTable: $5}
   }
-| SHOW TABLE ddl_force_eof
+| SHOW TABLE table_name
   {
-    $$ = &Show{Type: string($2)}
+    $$ = &Show{Type: string($2), OnTable: $3}
   }
-| SHOW TABLES ddl_force_eof
+| SHOW TABLES
   {
     $$ = &Show{Type: string($2)}
   }
 
 other_statement:
-  DESC force_eof
+  DESC table_name
   {
-    $$ = &OtherRead{}
+    $$ = &Show{Type: "table", OnTable: $2}
   }
-| DESCRIBE force_eof
+| DESCRIBE table_name
   {
-    $$ = &OtherRead{}
+    $$ = &Show{Type: "table", OnTable: $2}
   }
 
 comment_opt:
@@ -2009,11 +2009,6 @@ closeb:
   {
     decNesting(yylex)
   }
-
-force_eof:
-{
-  forceEOF(yylex)
-}
 
 ddl_force_eof:
   {

@@ -607,10 +607,10 @@ var (
 		output: "create table a",
 	}, {
 		input:  "create index a on b",
-		output: "alter table b",
+		output: "create index on b",
 	}, {
 		input:  "create unique index a on b",
-		output: "alter table b",
+		output: "create index on b",
 	}, {
 		input: "drop table a",
 	}, {
@@ -618,22 +618,20 @@ var (
 	}, {
 		input: "drop index if exists a.b",
 	}, {
-		input:  "show create table t",
-		output: "show create table",
+		input: "show create table t",
 	}, {
-		input:  "show index from table",
-		output: "show index",
+		input:  "show index from table t",
+		output: "show index t",
 	}, {
-		input:  "show table status",
-		output: "show table",
+		input: "show table status",
 	}, {
 		input: "show tables",
 	}, {
 		input:  "describe foobar",
-		output: "otherread",
+		output: "show table foobar",
 	}, {
 		input:  "desc foobar",
-		output: "otherread",
+		output: "show table foobar",
 	}, {
 		input: "select /* EQ true */ 1 from t where a = true",
 	}, {
@@ -701,7 +699,7 @@ func TestCaseSensitivity(t *testing.T) {
 		output: "create table A (\n\tB int\n)",
 	}, {
 		input:  "create index b on A",
-		output: "alter table A",
+		output: "create index on A",
 	}, {
 		input: "alter table A rename to B",
 	}, {

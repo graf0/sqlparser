@@ -110,7 +110,7 @@ func forceEOF(yylex interface{}) {
 %left <bytes> JOIN LEFT RIGHT INNER OUTER CROSS NATURAL
 %left <bytes> ON USING
 %token <empty> '(' ',' ')'
-%token <bytes> ID HEX STRING INTEGRAL FLOAT HEXNUM VALUE_ARG LIST_ARG COMMENT
+%token <bytes> ID HEX STRING INTEGRAL FLOAT HEXNUM VALUE_ARG POS_ARG LIST_ARG COMMENT
 %token <bytes> NULL TRUE FALSE
 %token <bytes> FULL COLUMNS
 
@@ -1642,6 +1642,10 @@ value:
 | VALUE_ARG
   {
     $$ = NewValArg($1)
+  }
+| POS_ARG
+  {
+    $$ = NewPosArg($1)
   }
 | NULL
   {

@@ -426,7 +426,7 @@ func (tkn *Tokenizer) Scan() (int, []byte) {
 			tkn.posVarIndex++
 			buf := new(bytes2.Buffer)
 			fmt.Fprintf(buf, ":v%d", tkn.posVarIndex)
-			return VALUE_ARG, buf.Bytes()
+			return POS_ARG, buf.Bytes()
 		case '.':
 			if isDigit(tkn.lastChar) {
 				return tkn.scanNumber(true)

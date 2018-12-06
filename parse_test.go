@@ -30,6 +30,8 @@ var (
 	}{{
 		input: "select 1",
 	}, {
+		input: "insert /* simple */ into a values (1)",
+	}, {
 		input: "select 1 from t",
 	}, {
 		input: "select .1 from t",
@@ -383,22 +385,20 @@ var (
 		output: "select /* double quoted string */ 'a' from t",
 	}, {
 		input:  "select /* quote quote in string */ 'a''a' from t",
-		output: "select /* quote quote in string */ 'a\\'a' from t",
+		output: "select /* quote quote in string */ 'a''a' from t",
 	}, {
 		input:  "select /* double quote quote in string */ \"a\"\"a\" from t",
 		output: "select /* double quote quote in string */ 'a\\\"a' from t",
 	}, {
 		input:  "select /* quote in double quoted string */ \"a'a\" from t",
-		output: "select /* quote in double quoted string */ 'a\\'a' from t",
+		output: "select /* quote in double quoted string */ 'a''a' from t",
 	}, {
-		input: "select /* backslash quote in string */ 'a\\'a' from t",
+		input: "select /* backslash quote in string */ 'a''a' from t",
+		output: "select /* backslash quote in string */ 'a''a' from t",
 	}, {
 		input: "select /* literal backslash in string */ 'a\\\\na' from t",
 	}, {
-		input: "select /* all escapes */ '\\0\\'\\\"\\b\\n\\r\\t\\Z\\\\' from t",
-	}, {
 		input:  "select /* non-escape */ '\\x' from t",
-		output: "select /* non-escape */ 'x' from t",
 	}, {
 		input: "select /* unescaped backslash */ '\\n' from t",
 	}, {
@@ -494,8 +494,6 @@ var (
 		output: "select 1 from t",
 	}, {
 		input: "select /* dual */ 1 from dual",
-	}, {
-		input: "insert /* simple */ into a values (1)",
 	}, {
 		input: "insert /* a.b */ into a.b values (1)",
 	}, {
@@ -1208,7 +1206,7 @@ var (
 		excludeMulti: true,
 	}, {
 		input:        "select 'aa\\",
-		output:       "syntax error at position 12 near 'aa'",
+		output:       "syntax error at position 12 near 'aa\\'",
 		excludeMulti: true,
 	}, {
 		input:        "select /* aa",

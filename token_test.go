@@ -94,11 +94,11 @@ func TestString(t *testing.T) {
 	}, {
 		in:   "'\\n'",
 		id:   STRING,
-		want: "\n",
+		want: "\\n",
 	}, {
 		in:   "'\\nhello\\n'",
 		id:   STRING,
-		want: "\nhello\n",
+		want: "\\nhello\\n",
 	}, {
 		in:   "'a''b'",
 		id:   STRING,
@@ -106,19 +106,19 @@ func TestString(t *testing.T) {
 	}, {
 		in:   "'a\\'b'",
 		id:   STRING,
-		want: "a'b",
+		want: "a\\",
 	}, {
 		in:   "'\\'",
-		id:   LEX_ERROR,
-		want: "'",
+		id:   STRING,
+		want: "\\",
 	}, {
 		in:   "'",
 		id:   LEX_ERROR,
 		want: "",
 	}, {
 		in:   "'hello\\'",
-		id:   LEX_ERROR,
-		want: "hello'",
+		id:   STRING,
+		want: "hello\\",
 	}, {
 		in:   "'hello",
 		id:   LEX_ERROR,
@@ -126,7 +126,7 @@ func TestString(t *testing.T) {
 	}, {
 		in:   "'hello\\",
 		id:   LEX_ERROR,
-		want: "hello",
+		want: "hello\\",
 	}}
 
 	for _, tcase := range testcases {

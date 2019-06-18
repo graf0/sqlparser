@@ -122,7 +122,7 @@ func forceEOF(yylex interface{}) {
 %left <bytes> AND
 %right <bytes> NOT '!'
 %left <bytes> BETWEEN CASE WHEN THEN ELSE END
-%left <bytes> '=' '<' '>' LE GE NE IS LIKE REGEXP IN NULL_SAFE_NOTEQUAL
+%left <bytes> '=' '<' '>' LE GE NE IS LIKE REGEXP MATCH IN NULL_SAFE_NOTEQUAL
 %left <bytes> '|'
 %left <bytes> '&'
 %left <bytes> SHIFT_LEFT SHIFT_RIGHT
@@ -135,7 +135,7 @@ func forceEOF(yylex interface{}) {
 
 // DDL Tokens
 %token <bytes> CREATE ALTER DROP RENAME ADD
-%token <bytes> TABLE INDEX TO IGNORE IF UNIQUE PRIMARY COLUMN CONSTRAINT FOREIGN
+%token <bytes> TABLE VIRTUAL INDEX TO IGNORE IF UNIQUE PRIMARY COLUMN CONSTRAINT FOREIGN
 %token <bytes> SHOW DESCRIBE DATE ESCAPE EXPLAIN
 
 // Type Tokens
@@ -365,6 +365,11 @@ create_statement:
   {
     // Change this to an alter statement
     $$ = &DDL{Action: CreateIndexStr, Table: $7, NewName:$7}
+  }
+| CREATE VIRTUAL TABLE not_exists_opt table_name USING table_name tuple_or_empty ddl_force_eof
+  {
+    // Change this to an alter statement
+    $$ = &DDL{Action: CreateVirtualTableStr, Table: $6, NewName:$6}
   }
 
 create_table_prefix:
@@ -1177,6 +1182,14 @@ condition:
   {
     $$ = &ComparisonExpr{Left: $1, Operator: NotRegexpStr, Right: $4}
   }
+| value_expression MATCH value_expression
+  {
+    $$ = &ComparisonExpr{Left: $1, Operator: MatchStr, Right: $3}
+  }
+| value_expression NOT MATCH value_expression
+  {
+    $$ = &ComparisonExpr{Left: $1, Operator: NotMatchStr, Right: $4}
+  }
 | value_expression BETWEEN value_expression AND value_expression
   {
     $$ = &RangeCond{Left: $1, Operator: BetweenStr, From: $3, To: $5}
@@ -1938,6 +1951,7 @@ reserved_keyword:
 | LEFT
 | LIKE
 | LIMIT
+| MATCH
 | MOD
 | NATURAL
 | NOT
@@ -1964,6 +1978,7 @@ reserved_keyword:
 | UPDATE
 | USING
 | VALUES
+| VIRTUAL
 | WHEN
 | WHERE
 | EXPLAIN

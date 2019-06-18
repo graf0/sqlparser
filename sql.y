@@ -368,8 +368,11 @@ create_statement:
   }
 | CREATE VIRTUAL TABLE not_exists_opt table_name USING table_name tuple_or_empty ddl_force_eof
   {
-    // Change this to an alter statement
-    $$ = &DDL{Action: CreateVirtualTableStr, Table: $6, NewName:$6}
+    var exists bool
+    if $4 != 0 {
+      exists = true
+    }
+    $$ = &DDL{Action: CreateVirtualTableStr, IfExists: exists, Table: $5, NewName: $7}
   }
 
 create_table_prefix:

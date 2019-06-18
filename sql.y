@@ -361,18 +361,14 @@ create_statement:
     $1.TableSpec = $2
     $$ = $1
   }
+| CREATE VIRTUAL TABLE not_exists_opt table_name USING table_name ddl_force_eof
+  {
+    $$ = &DDL{Action: CreateVirtualTableStr, Table: $5, NewName: $7}
+  }
 | CREATE constraint_opt INDEX not_exists_opt table_name ON table_name ddl_force_eof
   {
     // Change this to an alter statement
     $$ = &DDL{Action: CreateIndexStr, Table: $7, NewName:$7}
-  }
-| CREATE VIRTUAL TABLE not_exists_opt table_name USING table_name tuple_or_empty ddl_force_eof
-  {
-    var exists bool
-    if $4 != 0 {
-      exists = true
-    }
-    $$ = &DDL{Action: CreateVirtualTableStr, IfExists: exists, Table: $5, NewName: $7}
   }
 
 create_table_prefix:

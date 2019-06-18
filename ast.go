@@ -689,6 +689,7 @@ type DDL struct {
 	PartitionSpec *PartitionSpec
 	VindexSpec    *VindexSpec
 	VindexCols    []ColIdent
+	Options       string
 }
 
 // DDL strings.
@@ -726,11 +727,7 @@ func (node *DDL) Format(buf *TrackedBuffer) {
 	case CreateIndexStr:
 		buf.Myprintf("%s on %v", node.Action, node.Table)
 	case CreateVirtualTableStr:
-		exists := ""
-		if node.IfExists {
-			exists = " if exists"
-		}
-		buf.Myprintf("%s virtual table%s %v", node.Action, exists, node.Table)
+		buf.Myprintf("%s virtual table %v", node.Action, node.Table)
 	case DropIndexStr:
 		exists := ""
 		if node.IfExists {

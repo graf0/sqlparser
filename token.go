@@ -296,7 +296,7 @@ var keywords = map[string]int{
 	"varchar":             VARCHAR,
 	"varcharacter":        UNUSED,
 	"varying":             UNUSED,
-	"virtual":             UNUSED,
+	"virtual":             VIRTUAL,
 	"when":                WHEN,
 	"where":               WHERE,
 	"while":               UNUSED,

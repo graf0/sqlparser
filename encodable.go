@@ -19,7 +19,7 @@ package sqlparser
 import (
 	"bytes"
 
-	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
+	"github.com/graf0/sqlparser/dependency/sqltypes"
 )
 
 // This file contains types that are 'Encodable'.

@@ -23,9 +23,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/CovenantSQL/sqlparser/dependency/bytes2"
-	"github.com/CovenantSQL/sqlparser/dependency/hack"
-	"github.com/CovenantSQL/sqlparser/dependency/querypb"
+	"github.com/graf0/sqlparser/dependency/bytes2"
+	"github.com/graf0/sqlparser/dependency/hack"
+	"github.com/graf0/sqlparser/dependency/querypb"
 )
 
 var (

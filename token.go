@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/CovenantSQL/sqlparser/dependency/bytes2"
-	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
+	"github.com/graf0/sqlparser/dependency/bytes2"
+	"github.com/graf0/sqlparser/dependency/sqltypes"
 )
 
 const (

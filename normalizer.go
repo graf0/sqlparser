@@ -19,8 +19,8 @@ package sqlparser
 import (
 	"fmt"
 
-	"github.com/CovenantSQL/sqlparser/dependency/querypb"
-	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
+	"github.com/graf0/sqlparser/dependency/querypb"
+	"github.com/graf0/sqlparser/dependency/sqltypes"
 )
 
 // Normalize changes the statement to use bind values, and

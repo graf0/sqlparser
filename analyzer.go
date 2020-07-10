@@ -25,7 +25,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
+	"github.com/graf0/sqlparser/dependency/sqltypes"
 )
 
 // These constants are used to identify the SQL statement type.

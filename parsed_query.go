@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/CovenantSQL/sqlparser/dependency/querypb"
-	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
+	"github.com/graf0/sqlparser/dependency/querypb"
+	"github.com/graf0/sqlparser/dependency/sqltypes"
 )
 
 // ParsedQuery represents a parsed query where

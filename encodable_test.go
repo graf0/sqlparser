@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
+	"github.com/graf0/sqlparser/dependency/sqltypes"
 )
 
 func TestEncodable(t *testing.T) {

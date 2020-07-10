@@ -25,8 +25,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/CovenantSQL/sqlparser/dependency/querypb"
-	"github.com/CovenantSQL/sqlparser/dependency/sqltypes"
+	"github.com/graf0/sqlparser/dependency/querypb"
+	"github.com/graf0/sqlparser/dependency/sqltypes"
 )
 
 // Instructions for creating new types: If a type

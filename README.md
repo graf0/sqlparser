@@ -1,4 +1,4 @@
-# sqlparser [![Report card](https://goreportcard.com/badge/github.com/CovenantSQL/sqlparser)](https://goreportcard.com/report/github.com/CovenantSQL/sqlparser) [![GoDoc](https://godoc.org/github.com/CovenantSQL/sqlparser?status.svg)](https://godoc.org/github.com/CovenantSQL/sqlparser)
+# sqlparser [![Report card](https://goreportcard.com/badge/github.com/graf0/sqlparser)](https://goreportcard.com/report/github.com/graf0/sqlparser) [![GoDoc](https://godoc.org/github.com/graf0/sqlparser?status.svg)](https://godoc.org/github.com/graf0/sqlparser)
 
 Go package for parsing SQLite or SQL-92 queries.
 
@@ -13,7 +13,7 @@ It applies the same LICENSE as vitessio/vitess.
 
 ```go
 import (
-    "github.com/CovenantSQL/sqlparser"
+    "github.com/graf0/sqlparser"
 )
 ```
 

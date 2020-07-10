@@ -17,7 +17,7 @@ limitations under the License.
 package sqltypes
 
 import (
-	querypb "github.com/CovenantSQL/sqlparser/dependency/querypb"
+	querypb "github.com/graf0/sqlparser/dependency/querypb"
 )
 
 // Functions in this file should only be used for testing.
